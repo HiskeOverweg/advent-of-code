@@ -1,6 +1,5 @@
 using DelimitedFiles
 using Peaks
-using Plots
 
 the_array = readdlm("input9.txt", ',', String, '\n')
 the_array = reduce(vcat, permutedims.(collect.(the_array)))
