@@ -52,14 +52,41 @@ function traverse_graph(path, current_node, graph, visited)
     end
 end
 
+function new_traverse_graph(path, current_node, graph, visited)
+    if current_node == "end"
+        return path
+    end
+    candidates = collect(graph[current_node])
+    if maximum(values(visited)) == 2
+        avoid = [k for k in keys(visited) if visited[k]>0]
+        candidates = collect(filter(x -> !⊆([x], avoid), candidates))
+    end
+    if length(candidates)==0
+        return []
+    else
+        paths = []
+        for candidate in candidates
+            if check_lowercase(candidate)
+                visited_nodes = copy(visited)
+                visited_nodes[candidate]+=1
+                paths = vcat(paths, new_traverse_graph(path*candidate, candidate, graph, visited_nodes))
+            else
+                paths = vcat(paths, new_traverse_graph(path*candidate, candidate, graph, visited))
+            end
+        end
+        return paths
+    end
+end
 
 function main()
     the_array = readdlm("input12.txt", ',', String, '\n')
     lines = map(x -> split(x, '-'), the_array)
     connections = read_graph(lines)
-    # println(connections)
-    # println()
     println(length(traverse_graph("", "start", connections, Set([""]))))
+
+    small_caves = Dict(c => 0 for c in keys(connections) if check_lowercase(c))
+    println(length(new_traverse_graph("", "start", connections, small_caves)))
+
 end
 
 main()
